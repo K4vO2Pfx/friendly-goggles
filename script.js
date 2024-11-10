@@ -1,24 +1,28 @@
-// Supabase-Konfiguration
-const supabaseUrl = 'https://ebatwqemjtmgtvkoefgn.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImViYXR3cWVtanRtZ3R2a29lZmduIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzExMzg0MzYsImV4cCI6MjA0NjcxNDQzNn0.GYWU0KOrYlgQjd5X7evMR3yujzKqanM4Ojbl7Y4oNBY';
-const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+// Überprüfen, ob Supabase verfügbar ist, bevor wir weitermachen
+if (typeof supabase === 'undefined') {
+    console.error("Supabase konnte nicht geladen werden. Überprüfen Sie das CDN-Script.");
+} else {
+    // Supabase-Konfiguration und Initialisierung
+    const supabaseUrl = 'https://ebatwqemjtmgtvkoefgn.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImViYXR3cWVtanRtZ3R2a29lZmduIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzExMzg0MzYsImV4cCI6MjA0NjcxNDQzNn0.GYWU0KOrYlgQjd5X7evMR3yujzKqanM4Ojbl7Y4oNBY';
+    const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-// Funktion zum Abrufen der Kameradaten von Supabase
-async function fetchCameraData() {
-    try {
-        const { data, error } = await supabase
-            .from('cameras') // Tabellenname anpassen
-            .select('*');
-        if (error) {
-            console.error("Fehler beim Abrufen der Daten:", error);
+    // Funktion zum Abrufen der Kameradaten von Supabase
+    async function fetchCameraData() {
+        try {
+            const { data, error } = await supabase
+                .from('cameras') // Tabellenname anpassen
+                .select('*');
+            if (error) {
+                console.error("Fehler beim Abrufen der Daten:", error);
+                return [];
+            }
+            return data;
+        } catch (error) {
+            console.error("Allgemeiner Fehler beim Abrufen der Kameradaten:", error);
             return [];
         }
-        return data;
-    } catch (error) {
-        console.error("Allgemeiner Fehler beim Abrufen der Kameradaten:", error);
-        return [];
     }
-}
 
 // Initialisierung und Laden der Karte
 document.addEventListener('DOMContentLoaded', async () => {
