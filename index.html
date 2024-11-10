@@ -5,11 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kamera-Website</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
-    <meta http-equiv="Content-Security-Policy" content="
-        default-src 'self'; 
-        script-src 'self' https://unpkg.com https://cdn.jsdelivr.net; 
-        style-src 'self' 'unsafe-inline' https://unpkg.com;
-        connect-src 'self' https://ebatwqemjtmgtvkoefgn.supabase.co;">
     <style>
         #map { height: 600px; width: 100%; }
         #camera-list { margin-top: 20px; }
@@ -35,10 +30,24 @@
             <button type="submit">Hinzufügen</button>
         </form>
     </div>
-<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" defer></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js" defer></script>
-<script src="Semicircle.js" defer></script> <!-- Lokale Version von Semicircle.js -->
-<script src="script.js" defer></script> <!-- Ihr Hauptskript -->
 
+    <!-- Leaflet-Bibliothek -->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" defer></script>
+    
+    <!-- Supabase-Bibliothek -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js" defer></script>
+
+    <!-- Supabase-Initialisierung -->
+    <script defer>
+        const supabaseUrl = 'https://ebatwqemjtmgtvkoefgn.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImViYXR3cWVtanRtZ3R2a29lZmduIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzExMzg0MzYsImV4cCI6MjA0NjcxNDQzNn0.GYWU0KOrYlgQjd5X7evMR3yujzKqanM4Ojbl7Y4oNBY';
+        window.supabase = supabase.createClient(supabaseUrl, supabaseKey);
+    </script>
+
+    <!-- Semicircle Plugin (falls lokal gespeichert, in das Root-Verzeichnis legen) -->
+    <script src="Semicircle.js" defer></script> <!-- Verlinkung zu Semicircle Plugin -->
+
+    <!-- Haupt-JavaScript-Datei -->
+    <script src="script.js" defer></script>
 </body>
 </html>
