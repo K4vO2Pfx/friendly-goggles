@@ -1,12 +1,12 @@
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = 'https://ebatwqemjtmgtvkoefgn.supabase.co';
-const supabaseKey = 'YOUR_SUPABASE_KEY'; // Ersetzen Sie hier mit dem echten Supabase Key
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImViYXR3cWVtanRtZ3R2a29lZmduIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzExMzg0MzYsImV4cCI6MjA0NjcxNDQzNn0.GYWU0KOrYlgQjd5X7evMR3yujzKqanM4Ojbl7Y4oNBY'; // Ersetzen Sie hier mit dem echten Supabase Key
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 async function fetchCameraData() {
     const { data, error } = await supabase
-        .from('your_table_name') // Tabellenname von Supabase
+        .from('cameras') // Tabellenname von Supabase
         .select('*');
     if (error) console.error("Fehler beim Abrufen der Daten:", error);
     return data;
