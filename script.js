@@ -1,20 +1,6 @@
-// Funktion zur Initialisierung des Supabase-Clients
-function initializeSupabase() {
-    const supabaseUrl = 'https://ebatwqemjtmgtvkoefgn.supabase.co';
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImViYXR3cWVtanRtZ3R2a29lZmduIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzExMzg0MzYsImV4cCI6MjA0NjcxNDQzNn0.GYWU0KOrYlgQjd5X7evMR3yujzKqanM4Ojbl7Y4oNBY';
-    return supabase.createClient(supabaseUrl, supabaseKey);
-}
-
-// DOMContentLoaded-Ereignis warten, um sicherzustellen, dass alle Ressourcen geladen sind
 document.addEventListener('DOMContentLoaded', () => {
-    // Prüfen, ob die Supabase-Bibliothek verfügbar ist
-    if (typeof supabase === 'undefined') {
-        console.error("Supabase konnte nicht geladen werden. Überprüfen Sie das CDN-Script.");
-        return;
-    }
-
-    // Supabase initialisieren
-    const supabase = initializeSupabase();
+    // Zugriff auf Supabase
+    const supabase = window.supabase;
 
     // Funktion zum Abrufen der Kameradaten
     async function fetchCameraData() {
