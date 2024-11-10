@@ -22,8 +22,10 @@ async function fetchCameraData() {
 
 // Initialisierung und Laden der Karte
 document.addEventListener('DOMContentLoaded', async () => {
-    // Leaflet-Karte erstellen und zentrieren
-    const map = L.map('map').setView([52.52, 13.4050], 12); // Beispielkoordinaten für Berlin
+    // Erst hier auf supabase zugreifen
+    const cameraData = await fetchCameraData();
+    // Restliche Initialisierung
+});
 
     // OpenStreetMap-Layer zur Karte hinzufügen
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
