@@ -6,8 +6,8 @@ document.addEventListener('DOMContentLoaded', () => {
     async function fetchCameraData() {
         try {
             const { data, error } = await supabase
-                .from('cameras') // Tabellenname anpassen
-                .select('*');
+                .from('cameras')
+                .select('id, name, longitude, latitude, angle, fieldOfView, length, image, remarks');
             if (error) {
                 console.error("Fehler beim Abrufen der Daten:", error);
                 return [];
@@ -50,7 +50,9 @@ document.addEventListener('DOMContentLoaded', () => {
             latitude: parseFloat(document.getElementById('camera-latitude').value),
             angle: parseFloat(document.getElementById('camera-angle').value),
             fieldOfView: parseFloat(document.getElementById('camera-fov').value),
+            length: parseFloat(document.getElementById('camera-length').value), // Neues Feld für Länge
             remarks: document.getElementById('camera-remarks').value,
+            image: null // Platzhalter, da die Image-Daten nicht im Formular eingegeben werden
         };
 
         const { data, error } = await supabase.from('cameras').insert([newCamera]);
@@ -78,7 +80,7 @@ function displayCamerasOnMap(cameraData, map) {
         // Kameraausrichtung und Sichtfeld als Kegel hinzufügen
         const angle = camera.angle;
         const fov = camera.fieldOfView;
-        const length = 100; // Länge des Kegels in Metern
+        const length = camera.length || 100; // Verwenden Sie die Länge aus der Datenbank
 
         const direction = L.semiCircle([camera.latitude, camera.longitude], {
             radius: length,
