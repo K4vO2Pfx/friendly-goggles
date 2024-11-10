@@ -1,9 +1,11 @@
-import { createClient } from '@supabase/supabase-js';
-
 const supabaseUrl = 'https://ebatwqemjtmgtvkoefgn.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImViYXR3cWVtanRtZ3R2a29lZmduIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzExMzg0MzYsImV4cCI6MjA0NjcxNDQzNn0.GYWU0KOrYlgQjd5X7evMR3yujzKqanM4Ojbl7Y4oNBY'; // Ersetzen Sie hier mit dem echten Supabase Key
-const supabase = createClient(supabaseUrl, supabaseKey);
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImViYXR3cWVtanRtZ3R2a29lZmduIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzExMzg0MzYsImV4cCI6MjA0NjcxNDQzNn0.GYWU0KOrYlgQjd5X7evMR3yujzKqanM4Ojbl7Y4oNBY';
+const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
+// Global deklarierte Karte
+let map;
+
+// Funktion zum Abrufen der Kameradaten von Supabase
 async function fetchCameraData() {
     const { data, error } = await supabase
         .from('cameras') // Tabellenname von Supabase
@@ -13,16 +15,31 @@ async function fetchCameraData() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-    const map = L.map('map').setView([52.52, 13.4050], 12); // Startkoordinaten für Berlin
+    // Initialisieren der Karte
+    map = L.map('map').setView([52.52, 13.4050], 12); // Startkoordinaten für Berlin
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
         attribution: '© OpenStreetMap'
     }).addTo(map);
 
+    // Kameradaten abrufen und auf der Karte anzeigen
     const cameraData = await fetchCameraData();
+    displayCamerasOnMap(cameraData);
+    displayCameraList(cameraData);
 
-    // Kameramarker hinzufügen
+    // Ereignislistener für die Suchfunktion hinzufügen
+    document.getElementById('search').addEventListener('input', (e) => {
+        const searchTerm = e.target.value.toLowerCase();
+        const filteredCameras = cameraData.filter(camera =>
+            camera.name.toLowerCase().includes(searchTerm)
+        );
+        displayCameraList(filteredCameras);
+    });
+});
+
+// Funktion zur Anzeige der Kameras auf der Karte
+function displayCamerasOnMap(cameraData) {
     cameraData.forEach(camera => {
         const marker = L.marker([camera.latitude, camera.longitude]).addTo(map);
         marker.bindPopup(`<strong>${camera.name}</strong><br>${camera.remarks || ""}`);
@@ -39,14 +56,49 @@ document.addEventListener('DOMContentLoaded', async () => {
             color: "blue"
         }).addTo(map);
     });
+}
 
-    displayCameraList(cameraData);
-});
-
-async function displayCameraList(cameraData) {
+// Funktion zur Anzeige der Kameraliste
+function displayCameraList(cameraData) {
     const cameraList = document.getElementById('camera-items');
     cameraList.innerHTML = ''; // Liste leeren
     cameraData.forEach(camera => {
         const listItem = document.createElement('li');
         listItem.textContent = camera.name;
-        listItem.addEventListener('click',
+        listItem.addEventListener('click', () => {
+            map.setView([camera.latitude, camera.longitude], 15);
+        });
+        cameraList.appendChild(listItem);
+    });
+}
+
+// Ereignislistener für das Hinzufügen einer neuen Kamera
+document.getElementById('camera-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const newCamera = {
+        name: document.getElementById('camera-name').value,
+        longitude: parseFloat(document.getElementById('camera-longitude').value),
+        latitude: parseFloat(document.getElementById('camera-latitude').value),
+        angle: parseFloat(document.getElementById('camera-angle').value),
+        fieldOfView: parseFloat(document.getElementById('camera-fov').value),
+        remarks: document.getElementById('camera-remarks').value,
+    };
+
+    const { data, error } = await supabase
+        .from('cameras') // Tabellenname
+        .insert([newCamera]);
+
+    if (error) {
+        console.error("Fehler beim Hinzufügen der Kamera:", error);
+    } else {
+        console.log("Kamera hinzugefügt:", data);
+        location.reload(); // Seite aktualisieren, um neue Kamera anzuzeigen
+    }
+});
+
+// Koordinaten durch Klick auf Karte übernehmen
+map.on('click', function (e) {
+    document.getElementById('camera-longitude').value = e.latlng.lng;
+    document.getElementById('camera-latitude').value = e.latlng.lat;
+});
