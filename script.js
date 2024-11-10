@@ -1,14 +1,17 @@
+// Funktion zur Initialisierung von Supabase
+function initializeSupabase() {
+    const supabaseUrl = 'https://ebatwqemjtmgtvkoefgn.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImViYXR3cWVtanRtZ3R2a29lZmduIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzExMzg0MzYsImV4cCI6MjA0NjcxNDQzNn0.GYWU0KOrYlgQjd5X7evMR3yujzKqanM4Ojbl7Y4oNBY';
+    return supabase.createClient(supabaseUrl, supabaseKey);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-    // Prüfen, ob die Supabase-Bibliothek geladen wurde
     if (typeof supabase === 'undefined') {
         console.error("Supabase konnte nicht geladen werden. Überprüfen Sie das CDN-Script.");
         return;
     }
-    
-    // Supabase-Konfiguration und Initialisierung
-    const supabaseUrl = 'https://ebatwqemjtmgtvkoefgn.supabase.co';
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImViYXR3cWVtanRtZ3R2a29lZmduIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzExMzg0MzYsImV4cCI6MjA0NjcxNDQzNn0.GYWU0KOrYlgQjd5X7evMR3yujzKqanM4Ojbl7Y4oNBY';
-    const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+    const supabase = initializeSupabase(); // Supabase-Initialisierung
 
     // Funktion zum Abrufen der Kameradaten von Supabase
     async function fetchCameraData() {
@@ -61,7 +64,6 @@ document.addEventListener('DOMContentLoaded', () => {
             remarks: document.getElementById('camera-remarks').value,
         };
 
-        // Kamera zur Datenbank hinzufügen und Karte aktualisieren
         const { data, error } = await supabase.from('cameras').insert([newCamera]);
         if (error) {
             console.error("Fehler beim Hinzufügen der Kamera:", error);
