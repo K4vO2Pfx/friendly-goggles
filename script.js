@@ -7,7 +7,7 @@ const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 async function fetchCameraData() {
     try {
         const { data, error } = await supabase
-            .from('cameras') // Ersetzen Sie 'cameras' durch den tatsächlichen Tabellennamen
+            .from('cameras') // Tabellenname anpassen
             .select('*');
         if (error) {
             console.error("Fehler beim Abrufen der Daten:", error);
@@ -85,7 +85,7 @@ function displayCamerasOnMap(cameraData, map) {
         const fov = camera.fieldOfView;
         const length = 100; // Länge des Kegels in Metern
 
-        // Semicircle zur Visualisierung der Abdeckung (benötigt ggf. Leaflet-Semicircle-Plugin)
+        // Semicircle zur Visualisierung der Abdeckung
         const direction = L.semiCircle([camera.latitude, camera.longitude], {
             radius: length,
             startAngle: angle - fov / 2,
@@ -108,24 +108,3 @@ function displayCameraList(cameraData, map) {
         cameraList.appendChild(listItem);
     });
 }
-
-function displayCamerasOnMap(cameraData, map) {
-    cameraData.forEach(camera => {
-        const marker = L.marker([camera.latitude, camera.longitude]).addTo(map);
-        marker.bindPopup(`<strong>${camera.name}</strong><br>${camera.remarks || ""}`);
-
-        // Kameraausrichtung und Sichtfeld als Kegel hinzufügen
-        const angle = camera.angle;
-        const fov = camera.fieldOfView;
-        const length = 100; // Länge des Kegels in Metern
-
-        // Semicircle zur Visualisierung der Abdeckung
-        const direction = L.semiCircle([camera.latitude, camera.longitude], {
-            radius: length,
-            startAngle: angle - fov / 2,
-            stopAngle: angle + fov / 2,
-            color: "blue"
-        }).addTo(map);
-    });
-}
-
