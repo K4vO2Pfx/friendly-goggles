@@ -1,96 +1,42 @@
-const supabaseUrl = 'https://ebatwqemjtmgtvkoefgn.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImViYXR3cWVtanRtZ3R2a29lZmduIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzExMzg0MzYsImV4cCI6MjA0NjcxNDQzNn0.GYWU0KOrYlgQjd5X7evMR3yujzKqanM4Ojbl7Y4oNBY';
-const supabase = supabase.createClient(supabaseUrl, supabaseKey);
-
-async function fetchCameraData() {
-    const { data, error } = await supabase
-        .from('cameras') // Tabellenname von Supabase
-        .select('*');
-    if (error) console.error("Fehler beim Abrufen der Daten:", error);
-    return data;
-}
-
-document.addEventListener('DOMContentLoaded', async () => {
-    const map = L.map('map').setView([52.52, 13.4050], 12); // Startkoordinaten für Berlin
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '© OpenStreetMap'
-    }).addTo(map);
-
-    const cameraData = await fetchCameraData();
-
-    // Kameramarker hinzufügen
-    cameraData.forEach(camera => {
-        const marker = L.marker([camera.latitude, camera.longitude]).addTo(map);
-        marker.bindPopup(`<strong>${camera.name}</strong><br>${camera.remarks || ""}`);
-
-        // Kameraausrichtung und Sichtfeld als Kegel hinzufügen
-        const angle = camera.angle;
-        const fov = camera.fieldOfView;
-        const length = 100; // Länge des Kegels in Metern
-
-        // Semicircle zur Visualisierung der Abdeckung (benötigt eine zusätzliche Leaflet-Erweiterung)
-        const direction = L.semiCircle([camera.latitude, camera.longitude], {
-            radius: length,
-            startAngle: angle - fov / 2,
-            stopAngle: angle + fov / 2,
-            color: "blue"
-        }).addTo(map);
-    });
-
-    displayCameraList(cameraData);
-});
-
-async function displayCameraList(cameraData) {
-    const cameraList = document.getElementById('camera-items');
-    cameraList.innerHTML = ''; // Liste leeren
-    cameraData.forEach(camera => {
-        const listItem = document.createElement('li');
-        listItem.textContent = camera.name;
-        listItem.addEventListener('click', () => {
-            map.setView([camera.latitude, camera.longitude], 15);
-        });
-        cameraList.appendChild(listItem);
-    });
-}
-
-document.getElementById('search').addEventListener('input', (e) => {
-    const searchTerm = e.target.value.toLowerCase();
-    const filteredCameras = cameraData.filter(camera =>
-        camera.name.toLowerCase().includes(searchTerm)
-    );
-    displayCameraList(filteredCameras);
-});
-
-document.getElementById('camera-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    const newCamera = {
-        name: document.getElementById('camera-name').value,
-        longitude: parseFloat(document.getElementById('camera-longitude').value),
-        latitude: parseFloat(document.getElementById('camera-latitude').value),
-        angle: parseFloat(document.getElementById('camera-angle').value),
-        fieldOfView: parseFloat(document.getElementById('camera-fov').value),
-        remarks: document.getElementById('camera-remarks').value,
-    };
-
-    const { data, error } = await supabase
-        .from('cameras') // Tabellenname
-        .insert([newCamera]);
-
-    if (error) {
-        console.error("Fehler beim Hinzufügen der Kamera:", error);
-    } else {
-        console.log("Kamera hinzugefügt:", data);
-        // Seite aktualisieren, um neue Kamera anzuzeigen
-        location.reload();
-    }
-});
-
-// Koordinaten durch Klick auf Karte übernehmen
-const map = L.map('map'); // Stellen Sie sicher, dass `map` im globalen Bereich deklariert ist
-map.on('click', function (e) {
-    document.getElementById('camera-longitude').value = e.latlng.lng;
-    document.getElementById('camera-latitude').value = e.latlng.lat;
-});
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kamera-Website</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self'; 
+        script-src 'self' https://unpkg.com https://cdn.jsdelivr.net; 
+        style-src 'self' 'unsafe-inline' https://unpkg.com;
+        connect-src 'self' https://ebatwqemjtmgtvkoefgn.supabase.co;">
+    <style>
+        #map { height: 600px; width: 100%; }
+        #camera-list { margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Kamera Standorte</h1>
+    <div id="map"></div>
+    <div id="camera-list">
+        <h2>Kameraliste</h2>
+        <input type="text" id="search" placeholder="Suchen..." />
+        <ul id="camera-items"></ul>
+    </div>
+    <div id="add-camera-form">
+        <h3>Neue Kamera hinzufügen</h3>
+        <form id="camera-form">
+            <input type="text" id="camera-name" placeholder="Kamera Name" required />
+            <input type="number" id="camera-longitude" placeholder="Längengrad" required />
+            <input type="number" id="camera-latitude" placeholder="Breitengrad" required />
+            <input type="number" id="camera-angle" placeholder="Ausrichtung (Angle)" required />
+            <input type="number" id="camera-fov" placeholder="Sichtfeld (Field of View)" required />
+            <input type="text" id="camera-remarks" placeholder="Bemerkungen" />
+            <button type="submit">Hinzufügen</button>
+        </form>
+    </div>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
